@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>AI Marketing Audit | Chirag Chhatbar</title>
+<style>
+body { font-family: Arial; background:#f4f6fb; padding:40px;}
+.card { background:white; padding:30px; max-width:700px; margin:auto; border-radius:10px; }
+input, select, button {
+  width:100%; padding:12px; margin-top:10px; font-size:16px;
+}
+button { background:#1a2a6c; color:white; border:none; cursor:pointer;}
+pre { background:#111; color:#0f0; padding:20px; margin-top:20px; white-space:pre-wrap;}
+</style>
+</head>
+<body>
+
+<div class="card">
+<h1>AI-Powered Marketing Audit</h1>
+<p>Analyze funnels, tracking & attribution like an enterprise Martech team.</p>
+
+<input id="url" placeholder="Enter website URL" />
+<select id="channel">
+  <option>Google Ads</option>
+  <option>Facebook Ads</option>
+  <option>SEO</option>
+  <option>Email Marketing</option>
+  <option>GA4 / Tracking</option>
+</select>
+
+<button onclick="runAudit()">Run Audit</button>
+
+<pre id="output"></pre>
+</div>
+
+<script>
+async function runAudit() {
+  const url = document.getElementById("url").value;
+  const channel = document.getElementById("channel").value;
+  document.getElementById("output").textContent = "Running AI audit...";
+
+  const prompt = `
+You are a senior marketing analytics consultant.
+Audit the website ${url} for ${channel}.
+Check:
+- Conversion funnel
+- Tracking & analytics gaps
+- Attribution issues
+- CRO improvements
+- Growth opportunities
+Give bullet point actionable insights.
+`;
+
+  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer YOUR_OPENAI_API_KEY"
+    },
+    body: JSON.stringify({
+      model: "gpt-4o",
+      messages: [{ role: "user", content: prompt }]
+    })
+  });
+
+  const data = await response.json();
+  document.getElementById("output").textContent =
+    data.choices[0].message.content;
+}
+</script>
+
+</body>
+</html>
