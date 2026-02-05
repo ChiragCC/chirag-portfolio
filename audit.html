@@ -1,71 +1,140 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>AI Marketing Audit | Chirag Chhatbar</title>
-<style>
-body { font-family: Arial; background:#f4f6fb; padding:40px;}
-.card { background:white; padding:30px; max-width:700px; margin:auto; border-radius:10px; }
-input, select, button {
-  width:100%; padding:12px; margin-top:10px; font-size:16px;
-}
-button { background:#1a2a6c; color:white; border:none; cursor:pointer;}
-pre { background:#111; color:#0f0; padding:20px; margin-top:20px; white-space:pre-wrap;}
-</style>
+  <meta charset="UTF-8" />
+  <title>AI Marketing Audit | Chirag Chhatbar</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6fb;
+      padding: 40px;
+    }
+
+    .card {
+      background: #ffffff;
+      padding: 30px;
+      max-width: 700px;
+      margin: auto;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    }
+
+    h1 {
+      margin-top: 0;
+      color: #1a2a6c;
+    }
+
+    p {
+      color: #555;
+    }
+
+    input, select, button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 12px;
+      font-size: 16px;
+      border-radius: 6px;
+      border: 1px solid #ddd;
+    }
+
+    button {
+      background: #1a2a6c;
+      color: white;
+      border: none;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+
+    button:hover {
+      background: #243b8f;
+    }
+
+    pre {
+      background: #111;
+      color: #00ff90;
+      padding: 20px;
+      margin-top: 25px;
+      border-radius: 8px;
+      white-space: pre-wrap;
+      font-size: 14px;
+      min-height: 120px;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 13px;
+      color: #888;
+    }
+  </style>
 </head>
+
 <body>
 
-<div class="card">
-<h1>AI-Powered Marketing Audit</h1>
-<p>Analyze funnels, tracking & attribution like an enterprise Martech team.</p>
+  <div class="card">
+    <h1>AI-Powered Marketing Audit</h1>
+    <p>Analyze funnels, tracking, attribution & CRO like an enterprise Martech team.</p>
 
-<input id="url" placeholder="Enter website URL" />
-<select id="channel">
-  <option>Google Ads</option>
-  <option>Facebook Ads</option>
-  <option>SEO</option>
-  <option>Email Marketing</option>
-  <option>GA4 / Tracking</option>
-</select>
+    <input
+      id="url"
+      type="text"
+      placeholder="Enter website URL (e.g. https://example.com)"
+    />
 
-<button onclick="runAudit()">Run Audit</button>
+    <select id="channel">
+      <option>Google Ads</option>
+      <option>Facebook Ads</option>
+      <option>SEO</option>
+      <option>Email Marketing</option>
+      <option>GA4 / Tracking</option>
+    </select>
 
-<pre id="output"></pre>
-</div>
+    <button onclick="runAudit()">Run Audit</button>
 
-<script>
-async function runAudit() {
-  const url = document.getElementById("url").value;
-  const channel = document.getElementById("channel").value;
-  document.getElementById("output").textContent = "Running AI audit...";
+    <pre id="output">Awaiting input...</pre>
+  </div>
 
-  const prompt = `
-You are a senior marketing analytics consultant.
-Audit the website ${url} for ${channel}.
-Check:
-- Conversion funnel
-- Tracking & analytics gaps
-- Attribution issues
-- CRO improvements
-- Growth opportunities
-Give bullet point actionable insights.
-`;
+  <div class="footer">
+    Built by Chirag Chhatbar • AI + Marketing Analytics
+  </div>
 
- const response = await fetch("/.netlify/functions/audit", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ url, channel })
-});
-const data = await response.json();
-document.getElementById("output").textContent = data.result;
+  <script>
+    async function runAudit() {
+      const url = document.getElementById("url").value.trim();
+      const channel = document.getElementById("channel").value;
+      const output = document.getElementById("output");
 
-    })
-  });
+      if (!url) {
+        output.textContent = "❌ Please enter a valid website URL.";
+        return;
+      }
 
-  const data = await response.json();
-  document.getElementById("output").textContent =
-    data.choices[0].message.content;
-}
-</script>
+      output.textContent = "🔍 Running AI audit... Please wait.";
+
+      try {
+        const response = await fetch("/.netlify/functions/audit", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ url, channel })
+        });
+
+        if (!response.ok) {
+          throw new Error("Server error");
+        }
+
+        const data = await response.json();
+        output.textContent = data.result;
+
+      } catch (error) {
+        console.error(error);
+        output.textContent =
+          "⚠️ Audit failed. Please check backend or console logs.";
+      }
+    }
+  </script>
 
 </body>
 </html>
