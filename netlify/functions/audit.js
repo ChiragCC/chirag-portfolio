@@ -10,45 +10,25 @@ export async function handler(event) {
 
     const prompt = `
 You are a senior marketing analytics consultant.
-
-Audit the website: ${url}
-Channel focus: ${channel}
-
-Analyze:
-- Conversion funnel
-- Tracking & analytics gaps
-- Attribution issues
-- CRO improvements
-- Growth opportunities
-
-Return clear bullet-point actionable insights.
+Audit ${url} for ${channel}.
+Give actionable bullet-point insights.
     `;
 
     const completion = await client.chat.completions.create({
       model: "gpt-4o-mini",
-      messages: [{ role: "user", content: prompt }],
-      temperature: 0.4
+      messages: [{ role: "user", content: prompt }]
     });
-
-    const result = completion.choices[0].message.content;
 
     return {
       statusCode: 200,
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ result })
+      body: JSON.stringify({
+        result: completion.choices[0].message.content
+      })
     };
-
-  } catch (error) {
-    console.error("Audit error:", error);
-
+  } catch (err) {
     return {
       statusCode: 500,
-      body: JSON.stringify({
-        error: "AI audit failed",
-        details: error.message
-      })
+      body: JSON.stringify({ error: err.message })
     };
   }
 }
