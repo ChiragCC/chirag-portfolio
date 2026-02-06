@@ -1,8 +1,4 @@
 {
   "name": "chirag-portfolio",
-  "version": "1.0.0",
-  "type": "module",
-  "dependencies": {
-    "openai": "^4.0.0"
-  }
+  "version": "1.0.0"
 }
