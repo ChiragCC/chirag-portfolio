@@ -46,8 +46,9 @@
       margin-top: 20px;
     }
 
-    button:hover {
-      background: #243b8f;
+    button:disabled {
+      background: #999;
+      cursor: not-allowed;
     }
 
     pre {
@@ -58,7 +59,9 @@
       border-radius: 8px;
       white-space: pre-wrap;
       font-size: 14px;
-      min-height: 120px;
+      min-height: 140px;
+      max-height: 400px;
+      overflow-y: auto;
     }
 
     .footer {
@@ -90,7 +93,7 @@
       <option>GA4 / Tracking</option>
     </select>
 
-    <button onclick="runAudit()">Run Audit</button>
+    <button id="runBtn" onclick="runAudit()">Run Audit</button>
 
     <pre id="output">Awaiting input...</pre>
   </div>
@@ -101,37 +104,52 @@
 
   <script>
     async function runAudit() {
-      const url = document.getElementById("url").value.trim();
-      const channel = document.getElementById("channel").value;
+      const urlInput = document.getElementById("url");
+      const channelInput = document.getElementById("channel");
       const output = document.getElementById("output");
+      const button = document.getElementById("runBtn");
 
-      if (!url) {
-        output.textContent = "❌ Please enter a valid website URL.";
+      const url = urlInput.value.trim();
+      const channel = channelInput.value;
+
+      if (!url || !url.startsWith("http")) {
+        output.textContent = "❌ Please enter a valid URL starting with https://";
         return;
       }
 
-      output.textContent = "🔍 Running AI audit... Please wait.";
+      button.disabled = true;
+      output.textContent =
+        "🔍 Analyzing website...\n" +
+        "• Reviewing funnel\n" +
+        "• Checking tracking & attribution\n" +
+        "• Identifying CRO opportunities\n\n" +
+        "Please wait…";
 
       try {
         const response = await fetch("/.netlify/functions/audit", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ url, channel })
         });
 
+        const data = await response.json();
+
         if (!response.ok) {
-          throw new Error("Server error");
+          throw new Error(data.error || "Audit failed");
         }
 
-        const data = await response.json();
         output.textContent = data.result;
 
       } catch (error) {
         console.error(error);
         output.textContent =
-          "⚠️ Audit failed. Please check backend or console logs.";
+          "⚠️ Audit failed.\n\n" +
+          "Possible reasons:\n" +
+          "• Backend error\n" +
+          "• Invalid URL\n" +
+          "• Temporary OpenAI issue";
+      } finally {
+        button.disabled = false;
       }
     }
   </script>
