@@ -1,8 +1,29 @@
 export async function handler(event) {
   try {
-    if (!process.env.OPENAI_API_KEY) {
-      throw new Error("OPENAI_API_KEY is missing");
+    const { url, channel } = JSON.parse(event.body || "{}");
+
+    if (!url || !channel) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ error: "Missing url or channel" })
+      };
     }
+
+    const prompt = `
+You are a senior marketing analytics consultant.
+
+Audit the website: ${url}
+Primary channel: ${channel}
+
+Analyze:
+- Conversion funnel
+- Tracking & analytics gaps
+- Attribution issues
+- CRO improvements
+- Growth opportunities
+
+Give clear, actionable bullet points.
+    `;
 
     const response = await fetch("https://api.openai.com/v1/responses", {
       method: "POST",
@@ -12,7 +33,7 @@ export async function handler(event) {
       },
       body: JSON.stringify({
         model: "gpt-4.1-mini",
-        input: "Reply with only the word OK"
+        input: prompt
       })
     });
 
@@ -22,20 +43,14 @@ export async function handler(event) {
       statusCode: 200,
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        status: "OpenAI connected",
-        reply: data.output_text
+        result: data.output_text
       })
     };
 
   } catch (err) {
-    console.error("Audit function error:", err);
-
     return {
       statusCode: 500,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        error: err.message
-      })
+      body: JSON.stringify({ error: err.message })
     };
   }
 }
