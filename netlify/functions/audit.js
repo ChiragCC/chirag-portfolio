@@ -1,6 +1,27 @@
-export async function handler(event) {
+import OpenAI from "openai";
+
+export async function handler() {
   try {
-    const { url, channel } = JSON.parse(event.body);
+    // Create OpenAI client using Netlify env variable
+    const client = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY
+    });
+
+    console.log("Starting OpenAI health check...");
+
+    // Simple test prompt
+    const response = await client.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [
+        {
+          role: "user",
+          content: "Reply with only the word OK"
+        }
+      ],
+      temperature: 0
+    });
+
+    console.log("OpenAI responded successfully");
 
     return {
       statusCode: 200,
@@ -8,27 +29,23 @@ export async function handler(event) {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        result: `
-✅ Netlify Function is working!
-
-Website: ${url}
-Channel: ${channel}
-
-This confirms:
-• Frontend → Backend connection ✅
-• Netlify Functions detected ✅
-• POST request handled correctly ✅
-
-Next step: connect OpenAI.
-        `
+        status: "✅ OpenAI connected successfully",
+        model: "gpt-4o-mini",
+        reply: response.choices[0].message.content
       })
     };
+
   } catch (error) {
+    console.error("OpenAI connection failed:", error);
+
     return {
       statusCode: 500,
+      headers: {
+        "Content-Type": "application/json"
+      },
       body: JSON.stringify({
-        error: "Function error",
-        details: error.message
+        status: "❌ OpenAI connection failed",
+        error: error.message
       })
     };
   }
