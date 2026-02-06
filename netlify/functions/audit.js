@@ -2,36 +2,44 @@ import OpenAI from "openai";
 
 export async function handler() {
   try {
+    console.log("Function started");
+
+    if (!process.env.OPENAI_API_KEY) {
+      throw new Error("OPENAI_API_KEY is undefined");
+    }
+
+    console.log("API key found");
+
     const client = new OpenAI({
-      apiKey: process.env.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
+      apiKey: process.env.OPENAI_API_KEY
     });
 
-    const response = await client.chat.completions.create({
+    console.log("OpenAI client created");
+
+    const res = await client.chat.completions.create({
       model: "gpt-4o-mini",
-      messages: [
-        { role: "user", content: "Reply only with OK" }
-      ],
+      messages: [{ role: "user", content: "Reply with OK" }],
       temperature: 0
     });
+
+    console.log("OpenAI response received");
 
     return {
       statusCode: 200,
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         status: "OpenAI connected",
-        reply: response.choices[0].message.content
+        reply: res.choices[0].message.content
       })
     };
 
-  } catch (error) {
-    console.error("Function crash:", error);
+  } catch (err) {
+    console.error("Function error:", err);
 
     return {
       statusCode: 500,
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        status: "Function failed",
-        error: error.message
+        error: err.message
       })
     };
   }
