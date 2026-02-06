@@ -3,7 +3,7 @@ import OpenAI from "openai";
 export async function handler() {
   try {
     const client = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY
+      apiKey: process.env.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
     });
 
     const response = await client.chat.completions.create({
